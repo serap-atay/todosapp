@@ -9,6 +9,7 @@
     <color name="darkpurple">#370BDB</color>
     <color name="purple">#4E0BDB</color>
     <color name="pink">#8D0FDB</color>
+    <color name="searchcolor">#F2F2F2</color>
 
 
 </resources>
