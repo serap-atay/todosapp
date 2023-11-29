@@ -3,17 +3,20 @@ package com.example.todosapp.ui.adapter
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
+import com.example.todosapp.R
 import com.example.todosapp.data.entity.TaskModel
 import com.example.todosapp.databinding.CardDesignBinding
 import com.example.todosapp.ui.fragment.HomeFragmentDirections
+import com.example.todosapp.ui.viewmodels.HomeViewModel
 
-class TaskAdapter(var mContext :Context, var tasks :List<TaskModel>):RecyclerView.Adapter<TaskAdapter.CardHolder>() {
+class TaskAdapter(var mContext :Context, var tasks :List<TaskModel>, var homeViewModel: HomeViewModel):RecyclerView.Adapter<TaskAdapter.CardHolder>() {
 
     inner class CardHolder(var design :CardDesignBinding):  RecyclerView.ViewHolder(design.root)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardHolder {
-       val binding = CardDesignBinding.inflate(LayoutInflater.from(mContext),parent,false)
+       val binding :CardDesignBinding = DataBindingUtil.inflate(LayoutInflater.from(mContext), R.layout.card_design,parent,false)
         return CardHolder(binding)
     }
 
@@ -24,10 +27,7 @@ class TaskAdapter(var mContext :Context, var tasks :List<TaskModel>):RecyclerVie
     override fun onBindViewHolder(holder: CardHolder, position: Int) {
         val task = tasks[position]
         val d = holder.design
-        d.textViewtaskName.text = task.taskName
-        d.textViewtaskDesc.text = task.taskDescription
-        d.textViewDate.text = task.taskDate
-        d.textViewTime.text = task.taskTime
+        d.taskModel = task
 
         d.cardView.setOnClickListener {
             val nav = HomeFragmentDirections.navigateToDetailTodo(todo = task)
@@ -35,7 +35,7 @@ class TaskAdapter(var mContext :Context, var tasks :List<TaskModel>):RecyclerVie
         }
 
         d.imageViewClear.setOnClickListener {
-
+            homeViewModel.buttonDelete(task.taskId)
         }
 
     }

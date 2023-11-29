@@ -7,10 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation
+import com.example.todosapp.R
 import com.example.todosapp.data.entity.TaskModel
 import com.example.todosapp.databinding.FragmentAddTodoBinding
+import com.example.todosapp.ui.viewmodels.AddToDoViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -20,10 +24,11 @@ import java.util.Locale
 
 class AddTodoFragment : Fragment() {
     private lateinit var binding: FragmentAddTodoBinding
+    private  lateinit var addToDoViewModel: AddToDoViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle? ): View? {
-        binding = FragmentAddTodoBinding.inflate(inflater, container, false)
-
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_add_todo, container, false)
+        binding.addTodoFragment = this
         val backPress = object :OnBackPressedCallback(false){
             override fun handleOnBackPressed() {
                // Navigation.findNavController(this).
@@ -55,15 +60,18 @@ class AddTodoFragment : Fragment() {
 
             tp.show(requireActivity().supportFragmentManager,"Date")
         }
-        binding.btnSave.setOnClickListener {
-
-        }
 
 
    return binding.root
     }
-    fun save (task :TaskModel){
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val tempViewModel : AddToDoViewModel by viewModels()
+        addToDoViewModel = tempViewModel
+    }
+    fun buttonSave (taskname:String,taskdescription :String,taskdate:String,taskime:String){
+        addToDoViewModel.buttonSave(taskname,taskdescription,taskdate,taskime)
     }
 
 }

@@ -5,10 +5,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
+import com.example.todosapp.R
 import com.example.todosapp.data.entity.TaskModel
 import com.example.todosapp.databinding.FragmentTodoDetailBinding
+import com.example.todosapp.ui.viewmodels.AddToDoViewModel
+import com.example.todosapp.ui.viewmodels.ToDoDetailViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -17,15 +22,14 @@ import java.util.Locale
 
 class TodoDetailFragment : Fragment() {
     private lateinit var binding: FragmentTodoDetailBinding
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentTodoDetailBinding.inflate(inflater, container, false)
+    private lateinit var toDoViewModel: ToDoDetailViewModel
+    override fun onCreateView(inflater: LayoutInflater,container: ViewGroup?,savedInstanceState: Bundle?): View? {
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_todo_detail, container, false)
+        binding.todoDetailFragment = this
 
         val bundle: TodoDetailFragmentArgs by navArgs()
         val task = bundle.todo
+        binding.task = task
 
         binding.txtTaskName2.setText(task.taskName)
         binding.txtDescriptionMulti2.setText(task.taskDescription)
@@ -62,7 +66,13 @@ class TodoDetailFragment : Fragment() {
         return binding.root
     }
 
-    fun update(task: TaskModel) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val tempViewModel : ToDoDetailViewModel by viewModels()
+        toDoViewModel = tempViewModel
+    }
 
+    fun buttonUpdate(taskid : String ,taskname:String,taskdescription :String,taskdate:String,tastime:String) {
+    toDoViewModel.buttonUpdate(taskid,taskname,taskdescription,taskdate,tastime)
     }
 }

@@ -8,6 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SearchView.OnQueryTextListener
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.LayoutManager
@@ -15,53 +17,59 @@ import com.example.todosapp.R
 import com.example.todosapp.data.entity.TaskModel
 import com.example.todosapp.databinding.FragmentHomeBinding
 import com.example.todosapp.ui.adapter.TaskAdapter
+import com.example.todosapp.ui.viewmodels.HomeViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 
 class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
+    private lateinit var homeViewModel: HomeViewModel
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
+        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_home, container, false)
+        binding.homeFragment = this
 
         val currentDate =  SimpleDateFormat("dd MMMM yyyy").format(Date())
 
-        binding.txtDate.text = currentDate.toString()
-        binding.rv.layoutManager = LinearLayoutManager(requireContext())
+        binding.currentDate= currentDate.toString()
 
-        val tasks = ArrayList<TaskModel>()
-        val t1 =TaskModel("1","Yemek yap","Akşam yemeği hazırla","12/10/2023","15:43")
-        val t2 =TaskModel("2","Spor yap","Egzersiz yap ","02/10/2023","12:43")
-        val t3 =TaskModel("3","Alışveriş yap","Alışveriş listesi hazırla","16/10/2023","10:43")
-        tasks.add(t1)
-        tasks.add(t2)
-        tasks.add(t3)
-
-        val taskadapter = TaskAdapter(requireContext(),tasks)
-        binding.rv.adapter = taskadapter
-
-        binding.btnFab.setOnClickListener {
-            Navigation.findNavController(it).navigate(R.id.navigateToAddTodo)
+        homeViewModel.tasklist.observe(viewLifecycleOwner){
+            val taskadapter = TaskAdapter(requireContext(),it,homeViewModel)
+            binding.taskAdapter = taskadapter
         }
+
+
         binding.searchView.setOnQueryTextListener(object : OnQueryTextListener{
             override fun onQueryTextSubmit(txtSearch: String): Boolean {
-                 search(txtSearch)
+                 homeViewModel.search(txtSearch)
                 return true
             }
 
             override fun onQueryTextChange(txtSearch: String): Boolean {
-                 search(txtSearch)
-                return true
+                return if (txtSearch.isNotEmpty()){
+                    homeViewModel.search(txtSearch)
+                    true
+                }else{
+                    homeViewModel.getTasks()
+                    true
+                }
             }
-
         })
-
         return binding.root
 
     }
 
-    fun search (taskName : String) {
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val tempViewModel : HomeViewModel by viewModels()
+        homeViewModel = tempViewModel
     }
 
+    override fun onResume() {
+        super.onResume()
+        homeViewModel.getTasks()
+    }
+    fun buttonFab (it:View) {
+        Navigation.findNavController(it).navigate(R.id.navigateToAddTodo)
+    }
 }
